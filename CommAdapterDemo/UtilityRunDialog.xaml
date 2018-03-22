@@ -1,0 +1,63 @@
+﻿<UserControl x:Class="CommAdapterDemo.UtilityRunDialog"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:CommAdapterDemo"
+             mc:Ignorable="d" 
+             xmlns:wpf="clr-namespace:MaterialDesignThemes.Wpf;assembly=MaterialDesignThemes.Wpf"
+             xmlns:system="clr-namespace:System;assembly=mscorlib"
+             xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes">
+    <StackPanel Margin="8">
+        <TextBlock Style="{StaticResource MaterialDesignTitleTextBlock}" Text="Setting"></TextBlock>
+        <StackPanel>
+            <TextBlock Margin="0 4 0 4" Foreground="Red" Text="{Binding ErrorMessage}"></TextBlock>
+            <ComboBox
+                materialDesign:TextFieldAssist.TextBoxViewMargin="1 0 1 0"
+                materialDesign:HintAssist.FloatingScale="0.50"      
+                materialDesign:HintAssist.Hint="Mode"
+                FontSize="24"
+                Margin="0 4 0 4"
+                Style="{StaticResource MaterialDesignFloatingHintComboBox}"
+                ItemsSource="{Binding ModeList}" SelectedItem="{Binding Mode}">
+            </ComboBox>
+            <ComboBox
+                materialDesign:TextFieldAssist.TextBoxViewMargin="1 0 1 0"
+                materialDesign:HintAssist.FloatingScale="0.50"      
+                materialDesign:HintAssist.Hint="Address"
+                FontSize="24"
+                Margin="0 4 0 4"
+                Visibility="{Binding EnableSerialPortVisibility}"
+                Style="{StaticResource MaterialDesignFloatingHintComboBox}"
+                ItemsSource="{Binding COMPortList}" SelectedItem="{Binding Address}">
+            </ComboBox>
+            <TextBox
+                materialDesign:TextFieldAssist.TextBoxViewMargin="1 0 1 0"
+                materialDesign:HintAssist.FloatingScale="0.50"
+                materialDesign:HintAssist.IsFloating="True"
+                materialDesign:HintAssist.Hint="Address"
+                FontSize="24"
+                Margin="0 4 0 8"
+                Visibility="{Binding EnableIPAddressVisibility}"
+                Text="{Binding Address}">
+            </TextBox>
+            <TextBox
+                materialDesign:TextFieldAssist.TextBoxViewMargin="1 0 1 0"
+                materialDesign:HintAssist.FloatingScale="0.50"
+                materialDesign:HintAssist.IsFloating="True"
+                materialDesign:HintAssist.Hint="Port"
+                FontSize="24"
+                Margin="0 4 0 8"
+                Text="{Binding Port}">
+            </TextBox>
+        </StackPanel>
+        <StackPanel Orientation="Horizontal" Grid.Row="2" HorizontalAlignment="Right">
+            <Button IsCancel="True" FontSize="16" Style="{DynamicResource MaterialDesignFlatButton}" Command="{Binding CancelCommand}">
+                Cancel
+            </Button>
+            <Button IsDefault="True" FontSize="16" Style="{DynamicResource MaterialDesignFlatButton}" Command="{Binding ConfirmCommand}">
+                Confirm
+            </Button>
+        </StackPanel>
+    </StackPanel>
+</UserControl>
