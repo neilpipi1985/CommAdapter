@@ -1,0 +1,41 @@
+﻿<UserControl x:Class="CommAdapterDemo.TransmissionTargetDialog"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:CommAdapterDemo"
+             mc:Ignorable="d" 
+             xmlns:wpf="clr-namespace:MaterialDesignThemes.Wpf;assembly=MaterialDesignThemes.Wpf"
+             xmlns:system="clr-namespace:System;assembly=mscorlib"
+             xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes">
+    <StackPanel Orientation="Vertical" Margin="8">
+        <TextBlock Style="{StaticResource MaterialDesignHeadlineTextBlock}" Text="Transmission Target(TCP Client)"></TextBlock>
+        <StackPanel>
+            <CheckBox
+                            Style="{StaticResource MaterialDesignCheckBox}"
+                            FontSize="16"
+                            VerticalAlignment="Center"
+                            IsChecked="{Binding EnableBroadcast}">
+                Broadcast
+            </CheckBox>
+            <ScrollViewer ScrollViewer.VerticalScrollBarVisibility="Auto" Visibility="{Binding EnableTableVisibility}">
+                <DataGrid ItemsSource="{Binding TargetList}" CanUserSortColumns="True" CanUserAddRows="False"  AutoGenerateColumns="False" Height="200">
+                    <DataGrid.Columns>
+                        <DataGridCheckBoxColumn  Header="Enable" Binding="{Binding Path=EnableTransmission, Mode=TwoWay}" />
+                        <DataGridTextColumn Binding="{Binding Path=Address}"
+                                                            Header="Address" IsReadOnly="True" FontSize="16"
+                                                            EditingElementStyle="{StaticResource MaterialDesignDataGridTextColumnEditingStyle}" />
+                            <DataGridTextColumn Binding="{Binding Path=Port}"
+                                                            Header="Port" IsReadOnly="True" FontSize="16"
+                                                            EditingElementStyle="{StaticResource MaterialDesignDataGridTextColumnEditingStyle}" />
+                        </DataGrid.Columns>
+                </DataGrid>
+            </ScrollViewer>
+        </StackPanel>
+        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+            <Button IsDefault="True" FontSize="16" Style="{DynamicResource MaterialDesignFlatButton}" Command="{Binding OKCommand}">
+                OK
+            </Button>
+        </StackPanel>
+     </StackPanel>
+</UserControl>

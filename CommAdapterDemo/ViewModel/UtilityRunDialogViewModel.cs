@@ -42,15 +42,18 @@ namespace CommAdapterDemo.ViewModel
             get { return mMode; }
             set
             {
+                if (value == CommMode.SerialPort.ToString())
+                {
+                    Address = (mCOMPortList.Count > 0) ? mCOMPortList[0] : "";
+                    Port = 115200;
+                }
+                else if (value == CommMode.TCPServer.ToString() || mMode == CommMode.SerialPort.ToString())
+                {
+                    Address = "127.0.0.1";
+                    Port = 80;
+                }
+ 
                 mMode = value;
-                if (mMode != CommMode.SerialPort.ToString())
-                {
-                    Address = "";
-                }
-                else
-                {
-                    Address = (mCOMPortList.Count > 0) ? mCOMPortList [0] : "";
-                }
                 NotifyPropertyChanged("EnableSerialPortVisibility");
                 NotifyPropertyChanged("EnableIPAddressVisibility");
                 NotifyPropertyChanged("Mode");
@@ -88,7 +91,7 @@ namespace CommAdapterDemo.ViewModel
         }
         public System.Windows.Visibility EnableIPAddressVisibility
         {
-            get { return (mMode != CommMode.SerialPort.ToString()) ? System.Windows.Visibility.Visible : System.Windows.Visibility.Collapsed; }
+            get { return (mMode != CommMode.SerialPort.ToString() && mMode != CommMode.TCPServer.ToString()) ? System.Windows.Visibility.Visible : System.Windows.Visibility.Collapsed; }
             set { NotifyPropertyChanged("EnableIPAddressVisibility"); }
         }
 

@@ -13,8 +13,16 @@ using System.Windows.Threading;
 
 namespace CommAdapterDemo.ViewModel
 {
+    public class ClientInfo
+    {
+        public bool EnableTransmission { get; set; }
+        public string Address { get; set; }
+        public int Port { get; set; }
+    }
+
     class MainWindowViewModel : INotifyPropertyChanged
     {
+        public ICommand TransmissionTargetCommand { get { return new MainWindowCommand(TransmissionTarget); } }
         public ICommand TransmissionHEXCommand { get { return new MainWindowCommand(TransmissionHEX); } }
         public ICommand TransmissionASCIICommand { get { return new MainWindowCommand(TransmissionASCII); } }
         public ICommand ExcuteUtilityDialogCommand { get { return new MainWindowCommand(ExcuteUtilityDialog); } }
@@ -94,7 +102,33 @@ namespace CommAdapterDemo.ViewModel
                 NotifyPropertyChanged("ReceivedMessage");
             }
         }
- 
+        
+        public System.Windows.Visibility EnableIPAddressVisibility
+        {
+            get { return (mCommState.Mode == CommMode.TCPServer) ? System.Windows.Visibility.Visible : System.Windows.Visibility.Collapsed; }
+            set { NotifyPropertyChanged("EnableIPAddressVisibility"); }
+        }
+        
+        public string Address
+        {
+            get { return mCommState.Address; }
+            set
+            {
+                mCommState.Address = value;
+                NotifyPropertyChanged("Address");
+            }
+        }
+
+        public int Port
+        {
+            get { return mCommState.Port; }
+            set
+            {
+                mCommState.Port = value;
+                NotifyPropertyChanged("Port");
+            }
+        }
+
         private void NotifyPropertyChanged(string propertyName)
         {
             if (PropertyChanged != null) PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
@@ -108,6 +142,9 @@ namespace CommAdapterDemo.ViewModel
         private CommState mCommState = new CommState();
         private CommBaseAdapter mCommAdapter { get; set; }
 
+        private bool mEnableBroadcast = true;
+        private Dictionary<string, ClientInfo> mTCPClientList = new Dictionary<string, ClientInfo>();
+
         public MainWindowViewModel()
         {
             RefreshSettingUI();
@@ -117,10 +154,24 @@ namespace CommAdapterDemo.ViewModel
         {
             NotifyPropertyChanged("ConnectionVisibility");
             NotifyPropertyChanged("DisconnectionVisibility");
+            NotifyPropertyChanged("EnableIPAddressVisibility");
             NotifyPropertyChanged("AppVersion");
             NotifyPropertyChanged("CommStateMode");
             NotifyPropertyChanged("CommStateAddress");
             NotifyPropertyChanged("CommStatePort");
+        }
+
+        private async void TransmissionTarget(object obj)
+        {
+            await DialogHost.Show(new TransmissionTargetDialog()
+            {
+                DataContext = new TransmissionTargetDialogViewModel(mEnableBroadcast, mTCPClientList)
+            }, "RootDialog", async (object sender, DialogClosingEventArgs eventArgs) =>
+            {
+                if (eventArgs.Parameter == null) return;
+
+                mEnableBroadcast = (bool)eventArgs.Parameter;
+            });
         }
 
         private void TransmissionHEX(object obj)
@@ -135,7 +186,20 @@ namespace CommAdapterDemo.ViewModel
             if (mCommAdapter != null && mCommAdapter.IsOpen)
             {
                 byte[] data = System.Text.Encoding.ASCII.GetBytes(TransmissionMessage);
-                mCommAdapter.Send(data);
+                if (mCommState.Mode != CommMode.TCPServer)
+                {
+                    mCommAdapter.Send(data, mCommState.Address, mCommState.Port);
+                }
+                else
+                {
+                    foreach (string key in mTCPClientList.Keys)
+                    {
+                        if (mTCPClientList[key].EnableTransmission)
+                        {
+                            mCommAdapter.Send(data, mTCPClientList[key].Address, mTCPClientList[key].Port);
+                        }
+                    }
+                }
 
                 mTransmissionMessage = "";
                 TransmissionMessage = "";
@@ -165,11 +229,16 @@ namespace CommAdapterDemo.ViewModel
                             mCommAdapter = new CommUDP();
                             break;
                         }
-                    //case CommMode.TCP:
-                    //    {
-                    //        mAUOBatCore.SetCommInterface(new CommTCP());
-                    //        break;
-                    //    }
+                    case CommMode.TCPClient:
+                        {
+                            mCommAdapter = new CommTCPClient();
+                            break;
+                        }
+                    case CommMode.TCPServer:
+                        {
+                            mCommAdapter = new CommTCPServer();
+                            break;
+                        }
                     default:
                         {
                             break;
@@ -210,6 +279,8 @@ namespace CommAdapterDemo.ViewModel
                 TransmissionMessage = "";
                 ReceivedMessage = "";
 
+                mCommAdapter.ConnectEvent += CommAdapter_ConnectEvent;
+                mCommAdapter.DisconnectEvent += CommAdapter_DisconnectEvent;
                 mCommAdapter.DataReceivedEvent += CommAdapter_DataReceivedEvent;
 
                 RefreshSettingUI();
@@ -234,11 +305,11 @@ namespace CommAdapterDemo.ViewModel
                 {
                     mCommAdapter.Disconnect();
                     mCommAdapter.DataReceivedEvent -= CommAdapter_DataReceivedEvent;
+                    mCommAdapter.ConnectEvent -= CommAdapter_ConnectEvent;
+                    mCommAdapter.DisconnectEvent -= CommAdapter_DisconnectEvent;
                     mCommAdapter = null;
                 }
                 RefreshSettingUI();
-
-
             });
         }
 
@@ -260,11 +331,31 @@ namespace CommAdapterDemo.ViewModel
                 {
                     mCommAdapter.Disconnect();
                     mCommAdapter.DataReceivedEvent -= CommAdapter_DataReceivedEvent;
+                    mCommAdapter.ConnectEvent -= CommAdapter_ConnectEvent;
+                    mCommAdapter.DisconnectEvent -= CommAdapter_DisconnectEvent;
                     mCommAdapter = null;
                 }
                 RefreshSettingUI();
                 MainWindow.ExitAPP();
             });
+        }
+
+        private void CommAdapter_ConnectEvent(string address, int port, DateTime dateTime)
+        {
+            string key = string.Format("{0}{1}", address, port);
+            if (!mTCPClientList.ContainsKey(key))
+            {
+                mTCPClientList.Add(key, new ClientInfo { Address = address, Port = port, EnableTransmission = mEnableBroadcast });
+            }
+        }
+
+        private void CommAdapter_DisconnectEvent(string address, int port, DateTime dateTime)
+        {
+            string key = string.Format("{0}{1}", address, port);
+            if (mTCPClientList.ContainsKey(key))
+            {
+                mTCPClientList.Remove(key);
+            }
         }
 
         private void CommAdapter_DataReceivedEvent(List<byte> data, string address, int port, DateTime dateTime)

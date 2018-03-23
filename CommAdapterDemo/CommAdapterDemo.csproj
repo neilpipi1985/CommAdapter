@@ -77,11 +77,15 @@
     <Compile Include="NotifyDialog.xaml.cs">
       <DependentUpon>NotifyDialog.xaml</DependentUpon>
     </Compile>
+    <Compile Include="TransmissionTargetDialog.xaml.cs">
+      <DependentUpon>TransmissionTargetDialog.xaml</DependentUpon>
+    </Compile>
     <Compile Include="UtilityRunDialog.xaml.cs">
       <DependentUpon>UtilityRunDialog.xaml</DependentUpon>
     </Compile>
     <Compile Include="ViewModel\MainWindowViewModel.cs" />
     <Compile Include="ViewModel\NotifyDialogViewModel.cs" />
+    <Compile Include="ViewModel\TransmissionTargetDialogViewModel.cs" />
     <Compile Include="ViewModel\UtilityRunDialogViewModel.cs" />
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
@@ -96,6 +100,10 @@
       <SubType>Code</SubType>
     </Compile>
     <Page Include="NotifyDialog.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="TransmissionTargetDialog.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

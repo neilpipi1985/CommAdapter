@@ -43,8 +43,10 @@
   <ItemGroup>
     <Compile Include="CommBaseAdapter.cs" />
     <Compile Include="CommSerialPort.cs" />
+    <Compile Include="CommTCPServer.cs" />
     <Compile Include="CommUDP.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="CommTCPClient.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

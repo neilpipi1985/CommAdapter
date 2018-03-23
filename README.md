@@ -1,9 +1,20 @@
 # CommAdapter Project #
 * * *
 
-通訊測試SerialPort, UDP, TCP(未實作)
+## Change Log ##
 
-By neilpipi1985
+- 2018/03/23 
+
+  V1.1.0.0
+
+      新增: TCP Client, TCP Server功能
+
+- 2018/03/22 
+
+  V1.0.0.0
+
+      新增: SerialPort, UDP功能
+
 
 ## 開發環境 ##
 
@@ -23,8 +34,10 @@ By neilpipi1985
 - 可以同時開啟兩個CommAdapterDemo程式測試傳訊息
 
 
-
 ## 問題說明 ##
 
-- TCP尚未實作及測試
 - 同一個TCP/UDP Port同一個時間只允許一個物件使用
+
+
+
+By neilpipi1985

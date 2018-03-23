@@ -31,8 +31,12 @@ namespace CommAdapter
         {
             try
             {
+                string address = this.Address;
+                int port = this.Port;
                 mSerialPort.DataReceived -= SerialPortObj_DataReceived;
                 mSerialPort.Close();
+
+                DeviceDisconnect(address, port, DateTime.Now);
             }
             catch (Exception err)
             {
@@ -53,6 +57,11 @@ namespace CommAdapter
                 return -1;
             }
             return 0;
+        }
+
+        public override int Send(byte[] data, string address, int port)
+        {
+            return this.Send(data);
         }
 
         protected override string GetAddress()
@@ -82,7 +91,7 @@ namespace CommAdapter
                 data.AddRange(buffer);
             }
 
-            DataReceived(data, this.Address, this.Port);
+            DataReceived(data, this.Address, this.Port, DateTime.Now);
         }
     }
 }

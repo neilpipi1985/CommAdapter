@@ -44,6 +44,9 @@ namespace CommAdapter
         {
             try
             {
+                string address = this.Address;
+                int port = this.Port;
+
                 mCommState.IsOpen = false;
                 mCommState.Address = "";
                 mCommState.Port = 0;
@@ -56,6 +59,8 @@ namespace CommAdapter
                     mDataReceivedThread.Abort();
                     mDataReceivedThread = null;
                 }
+
+                DeviceDisconnect(address, port, DateTime.Now);
             }
             catch (Exception err)
             {
@@ -66,8 +71,13 @@ namespace CommAdapter
 
         public override int Send(byte[] data)
         {
-            return this.Send(data, IPAddress.Parse(this.Address), this.Port); // 送出訊息到指定的ip和port上
+            return this.Send(data, IPAddress.Broadcast, this.Port); // 送出訊息到指定的ip和port上
             // return this.Send(data, IPAddress.Any, this.Port); // 送出訊息廣播所有ip和port上
+        }
+
+        public override int Send(byte[] data, string address, int port)
+        {
+            return this.Send(data, IPAddress.Parse(address), port); // 送出訊息到指定的ip和port上
         }
 
         public int Send(byte[] data, IPAddress ipAddress, int port)
@@ -110,7 +120,7 @@ namespace CommAdapter
                 int length = mSocket.ReceiveFrom(buffer, ref remoteEndPoint);
                 Array.Resize(ref buffer, length);
  
-                DataReceived(buffer.ToList(), ((IPEndPoint)remoteEndPoint).Address.ToString(), ((IPEndPoint)remoteEndPoint).Port);
+                DataReceived(buffer.ToList(), ((IPEndPoint)remoteEndPoint).Address.ToString(), ((IPEndPoint)remoteEndPoint).Port, DateTime.Now);
             }
 
             mSocket.Close();
